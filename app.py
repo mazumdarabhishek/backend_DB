@@ -2,14 +2,17 @@ from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 from restaurant_db_actions import restaurantDbQuery
 from datetime import  datetime
+from flask_cors import CORS
+from restaurant_OrderDB_actions import OrderDbQuery
 import json
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 app.secret_key = "9977701001573a1c28123a15952f53c1"
-
+app.config['CORS_HEADERS'] = 'Content-Type'
 obj = restaurantDbQuery()
-
+obj2 = OrderDbQuery()
 
 class restaurant(Resource):
 
@@ -59,10 +62,20 @@ class restaurantdata(Resource):
 
         return {"Data": data}
 
+class orders(Resource):
+    def post(self):
+        data = request.get_json()
+        # inserting data into DB
+        # for loop for multiple json
+        # for i in data:
+        msg = obj2.createOrder(data)
+        return {"message": msg }
+
 
 api.add_resource(restaurant, "/restaurant/create")
 api.add_resource(restaurantopr, "/restaurantopr/<string:id_>")
 api.add_resource(restaurantdata, "/restaurantdata")
+api.add_resource(orders, "/orders")
 
 if __name__ == "__main__":
 
